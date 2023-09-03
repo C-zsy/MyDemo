@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chinasoft.demo.mapper.BuildMapper">
+    <insert id="buildAdd" parameterType="hashMap">
+        insert into rpms_build set build_name = #{buildName}, build_start = #{buildStart}, build_finish = #{buildFinish},
+            build_leak = #{buildLeak}, build_area = #{buildArea}, build_delete = 0
+    </insert>
+
+    <select id="buildSearchList" parameterType="hashMap" resultType="hashMap">
+        select build_id as buildId, build_name as buildName, build_start as buildStart, build_finish as buildFinish,
+        build_area as buildArea
+        from rpms_build
+        where 1 = 1
+        <if test="oneway == 1">
+            and build_name like '%${buildKey}%'
+        </if>
+        <if test="oneway == 2">
+            and build_start like '%${buildKey}%'
+        </if>
+        <if test="oneway==3">
+            and build_finish like '%${buildKey}%'
+        </if>
+        <if test="oneway == 4">
+            and build_leak like '%${buildKey}%'
+        </if>
+        <if test="oneway == 5">
+            and build_area like '%${buildKey}%'
+        </if>
+    </select>
+
+    <select id="buildList" parameterType="hashMap" resultType="hashMap">
+        select build_id as buildId, build_name as buildName, build_start as buildStart, build_finish as buildFinish,
+            build_area as buildArea
+        from rpms_build
+        where build_delete != 1
+    </select>
+
+    <update id="buildUpdate" parameterType="hashMap">
+        update rpms_build set build_name = #{buildName}, build_start = #{buildStart}, build_finish = #{buildFinish},
+            build_leak = #{buildLeak}, build_area = #{buildArea}, build_delete = 0
+        where build_id = #{buildId}
+    </update>
+
+    <delete id="deleteBuildByIds" parameterType="java.util.List">
+        delete from rpms_build where build_id in
+        <foreach collection="list" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <sql id="queryFields">
+        select e.build_id as buildId, e.build_name as buildName, e.build_start as buildStart,
+            e.build_finish as buildFinish, e.build_leak as buildLeak, e.build_area as buildArea
+        from rpms_build as e
+    </sql>
+
+    <sql id="queryCondition">
+        <trim prefix="where" prefixOverrides="and|or">
+            <if test="buildId            != null and buildId              !=''">and e.build_id =#{buildId}</if>
+            <if test="buildName          != null and buildName            !=''">and e.build_name like '%${buildName}%'</if>
+            <if test="buildStart         != null and buildStart           !=''">and e.build_start =#{buildStart}</if>
+            <if test="buildFinish        != null and buildFinish          !=''">and e.build_finish =#{buildFinish}</if>
+            <if test="buildLeak          != null and buildLeak            !=''">and e.build_leak =#{buildLeak}</if>
+            <if test="buildArea          != null and buildArea            !=''">and e.build_area =#{buildArea}</if>
+        </trim>
+    </sql>
+
+    <select id="selectBuildManageCount" parameterType="hashMap" resultType="int">
+        select count(*)
+        from rpms_build as e
+        <include refid="queryCondition"/>
+    </select>
+
+    <select id="queryBuildList" parameterType="hashMap" resultType="hashMap">
+        <include refid="queryFields"/>
+        <include refid="queryCondition"/>
+        order by build_id DESC
+        <if test="start != null and pageSize != null ">
+            limit #{start}, #{pageSize}
+        </if>
+    </select>
+</mapper>

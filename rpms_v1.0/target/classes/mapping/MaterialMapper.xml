@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chinasoft.demo.mapper.MaterialMapper">
+
+
+     <resultMap id="BaseResultMap" type="com.chinasoft.demo.pojo.Material">
+         <result column="typeId" jdbcType="INTEGER" property="typeId" />
+         <result column="typeName" jdbcType="VARCHAR" property="typeName" />
+         <result column="typeDelete" jdbcType="INTEGER" property="typeDelete" />
+     </resultMap>
+    
+    <select id="SelectMaterial"  resultMap="BaseResultMap" >
+        select * from rpms_type
+    </select>
+
+    <insert id="insertType" parameterType="com.chinasoft.demo.pojo.Material">
+        insert into rpms_type values(null,#{typeName},0)
+    </insert>
+
+    <update id="typeUpdate" parameterType="com.chinasoft.demo.pojo.Material">
+        update rpms_type set typeName=#{typeName} where typeId=#{typeId}
+    </update>
+    
+   <delete id="deleteTypeByIds" parameterType="java.lang.Integer">
+       delete from rpms_type where typeId in
+       <foreach collection="list" item="item" separator="," open="(" close=")">
+           #{item}
+       </foreach>
+   </delete>
+    <!-- <select id="SelectMaterial" resultMap="hashMap">
+        select typeId as typeId,typeName as typeName,typeDelete as typeDelete from rpms_type
+    </select>
+
+   <insert id="insertType" parameterType="hashMap" >
+       insert into rpms_type values (null,#{typeName},0)
+   </insert>-->
+    <select id="searchList" parameterType="hashmap" resultType="hashmap">
+        select * from rpms_type as e where 1 = 1
+        <if test="oneway  == 1">and e.typeName like '%${onetext}%'</if>
+    </select>
+
+    <sql id="queryFields">
+        select e.typeId as typeId,e.typeName as typeName,e.typeDelete as typeDelete from rpms_type as e
+    </sql>
+
+    <sql id="queryCondition">
+        <trim prefix="where" prefixOverrides="and|or">
+            <!--<if test="typeId           != null and typeId             !=''">and e.typeId =#{typeId}</if>-->
+            <if test="typeName          != null and typeName            !=''">and e.typeName like '%${typeName}%'</if>
+        </trim>
+    </sql>
+
+    <select id="selectManageCount" parameterType="hashMap" resultType="int">
+        select count(*)
+        from  rpms_type as e
+        <include refid="queryCondition" />
+    </select>
+
+    <select id="queryTypeList" parameterType="hashMap" resultType="hashMap">
+        <include refid="queryFields" />
+        <include refid="queryCondition" />
+        order by typeId DESC
+        <if test="start != null and pageSize != null ">
+            limit #{start}, #{pageSize}
+        </if>
+    </select>
+</mapper>

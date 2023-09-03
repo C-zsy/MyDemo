@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chinasoft.demo.mapper.RoomMapper">
+    <select id="roomSearchList" parameterType="hashMap" resultType="hashMap">
+        select * from rpms_room
+        where 1 = 1
+        <if test="oneway == 1">and build_name like '%${onetext}%'</if>
+        <if test="oneway == 2">and room_name like '%${onetext}%'</if>
+        <if test="oneway == 3">and room_date like '%${onetext}%'</if>
+        <if test="oneway == 4">and room_type like '%${onetext}%'</if>
+        <if test="oneway == 5">and room_use like '%${onetext}%'</if>
+        <if test="oneway == 6">and room_area like '%${onetext}%'</if>
+        <if test="oneway == 7">and room_percent like '%${onetext}%'</if>
+    </select>
+
+    <select id="roomList" parameterType="hashMap" resultType="hashMap">
+        select room_id as roomId, build_name as buildName, room_name as roomName, room_date as roomDate,
+            room_type as roomType, room_use as roomUse, room_area as roomArea, room_percent as roomPercent
+        from rpms_room
+        where room_delete != 1
+    </select>
+
+    <insert id="roomAdd" parameterType="hashMap">
+        insert into rpms_room set build_name = #{buildName}, room_name = #{roomName}, room_date = #{roomDate}, room_type = #{roomType},
+            room_use = #{roomUse}, room_area = #{roomArea}, room_percent = #{roomPercent}, room_delete = 0
+    </insert>
+
+    <update id="roomUpdate" parameterType="hashMap">
+        update rpms_room set build_name = #{buildName}, room_name = #{roomName}, room_date = #{roomDate}, room_type = #{roomType},
+            room_use = #{roomUse}, room_area = #{roomArea}, room_percent = #{roomPercent}, room_delete = 0
+        where room_id = #{roomId}
+    </update>
+
+    <delete id = "deleteRoomByIds" parameterType="java.util.List">
+        delete from rpms_room where room_id in
+        <foreach collection="list" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <sql id="queryFields">
+        select e.room_id as roomId, e.build_name as buildName, e.room_date as roomDate,
+            e.room_type as roomType, e.room_use as roomUse, e.room_area as roomArea, e.room_percent as roomPercent
+        from rpms_room as e
+    </sql>
+
+    <sql id="queryCondition">
+        <trim prefix="where" prefixOverrides="and|or">
+            <if test="roomId            != null and roomId              !=''">and e.room_id =#{roomId}</if>
+            <if test="buildName         != null and buildName           !=''">and e.build_name like '%${buildName}%'</if>
+            <if test="roomDate          != null and roomDate            !=''">and e.room_date =#{roomDate}</if>
+            <if test="roomType          != null and roomType            !=''">and e.room_type =#{roomType}</if>
+            <if test="roomUse           != null and roomUse             !=''">and e.room_use =#{roomUse}</if>
+            <if test="roomArea          != null and roomArea            !=''">and e.room_area =#{roomArea}</if>
+            <if test="roomPercent       != null and roomPercent         !=''">and e.room_percent =#{roomPercent}</if>
+        </trim>
+    </sql>
+
+    <select id="selectRoomManageCount" parameterType="hashMap" resultType="int">
+        select count(*)
+        from rpms_room as e
+        <include refid="queryCondition"/>
+    </select>
+
+    <select id="queryRoomList" parameterType="hashMap" resultType="hashMap">
+        <include refid="queryFields"/>
+        <include refid="queryCondition"/>
+        order by room_id DESC
+        <if test="start != null and pageSize != null ">
+            limit #{start}, #{pageSize}
+        </if>
+    </select>
+</mapper>

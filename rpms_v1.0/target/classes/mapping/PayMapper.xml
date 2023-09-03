@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chinasoft.demo.mapper.PayMapper">
+
+
+    <insert id="payAdd" parameterType="hashMap">
+        insert into rpms_pay
+        set chargeId   = #{chargeId},
+            payMoney   = #{payMoney},
+            payReceive = #{payReceive},
+            payLack    = #{payLack},
+            payDate    = #{payDate},
+            ownerId    = #{ownerId},
+            payState   = #{payState},
+            payMonth   = #{payMonth}
+    </insert>
+
+
+    <select id="payList" parameterType="hashmap" resultType="hashMap">
+        select *
+        from rpms_pay
+    </select>
+
+    <select id="paySearchList" parameterType="hashmap" resultType="hashMap">
+        select * from rpms_pay as e, rpms_charge as c where e.chargeId = c.chargeId
+        <if test="oneway  == 1">and c.chargeName like '%${onetext}%'</if>
+        <if test="oneway  == 2">and e.ownerId like '%${onetext}%'</if>
+    </select>
+
+    <sql id="queryFields">
+        select *
+        from rpms_pay as e
+    </sql>
+
+    <sql id="queryCondition">
+        <trim prefix="where" prefixOverrides="and|or">
+            <if test="oneway  == 1">and e.chargeId like '%${onetext}%'</if>
+            <if test="oneway  == 2">and e.ownerID like '%${onetext}%'</if>
+        </trim>
+    </sql>
+
+    <select id="queryPayList" parameterType="hashMap" resultType="hashMap">
+        # select * from rpms_pay as a, rpms_room as b, rpms_owner as c, rpms_build
+        select * from rpms_pay as e
+        <include refid="queryCondition"/>
+        group by payId
+        order by payId DESC
+        <if test="start != null and pageSize != null ">
+            limit #{start}, #{pageSize}
+        </if>
+    </select>
+
+    <select id="selectManageCount" parameterType="hashMap" resultType="int">
+        select count(*)
+        from rpms_pay as e
+        <include refid="queryCondition"/>
+    </select>
+
+    <delete id="payDelete" parameterType="hashMap">
+        delete from rpms_pay where payId in
+        <foreach collection="list" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+
+    <update id="payUpdate" parameterType="hashmap">
+        update rpms_pay
+        set chargeId   = #{chargeId},
+            payMoney   = #{payMoney},
+            payReceive = #{payReceive},
+            payLack    = #{payLack},
+            payDate    = #{payDate},
+            ownerId    = #{ownerId},
+            payState   = #{payState},
+            payMonth   = #{payMonth}
+        where payId = #{payId}
+    </update>
+
+    <update id="paySend" parameterType="hashmap">
+        update rpms_pay
+        set payMoney   = #{payMoney},
+            payReceive = #{payReceive},
+            payLack    = #{payLack},
+            payDate    = #{payDate},
+            payState   = #{payState}
+        where payId = #{payId}
+    </update>
+</mapper>

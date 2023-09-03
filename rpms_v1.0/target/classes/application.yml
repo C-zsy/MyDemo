@@ -1,0 +1,80 @@
+# 浏览器上传图像到服务器的路径
+# 该路径存储了所有浏览器上传的图片
+location: D:/upLoad/picture/
+
+# 微服务端口号
+server:
+  port: 80
+
+spring:
+  # 配置数据源
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/property?useUnicode=true&characterEncoding=UTF8&useSSL=false
+    username: root
+    password: kazusa528
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      min-idle: 5
+      max-active: 10
+      max-wait: 6000
+      # Druid性能统计监控的核心配置  stat配置Druid数据源的监控和性能统计 wall配置Druid连接池的防火墙 log4j配置Druid连接池的日志
+      filters: stat,wall,log4j
+      # 开启PreparedStatements Cache(提升写入、查询效率)，MySQL5.7以上建议true
+      max-pool-prepared-statement-per-connection-size: 20
+      pool-prepared-statements: true
+      # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+      time-between-eviction-runs-millis: 60000
+      # 通过connectProperties属性来打开mergeSql功能；慢SQL记录
+      connection-properties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+
+  # 配置Thymeleaf模板  cache:false 不适用thymeleaf缓存，prefix配置thymeleaf模板页面文件的前缀  suffix配置thymeleaf模板页面文件的后缀
+  thymeleaf:
+    cache: false
+    prefix: classpath:/templates/water/
+    suffix: .html
+  #  resources:
+  #    static-locations: classpath:/META-INF/resources/,classpath:/resources/,classpath:/static/,classpath:/public/,classpath:/upload/
+  servlet:
+    multipart:
+      max-request-size: 100MB
+      max-file-size: 100MB
+
+  freemarker:
+    allow-request-override: false
+    allow-session-override: false
+    cache: false
+    charset: utf-8
+    check-template-location: true
+    content-type: text/html
+    enabled: true
+    expose-request-attributes: false
+    expose-session-attributes: false
+    expose-spring-macro-helpers: true
+    prefer-file-system-access: true
+    suffix: .ftl
+    template-loader-path: classpath:/templates/
+    settings:
+      template_update_delay: 0
+      default_encoding: utf-8
+      classic_compatible: true
+#  mvc:
+#    static-path-pattern: /static/**
+
+
+# MyBatis-Plus配置   映射支持驼峰命名，能够将数据库列的下划线转换为Java实体类属性的驼峰，也能够将实体类属性的驼峰转换为下划线  user_name->userName  uerName->user_name
+# 配置MyBatis-Plus日志实现类，配置主键生成策略自动增长
+#mybatis-plus:
+#  configuration:
+#    map-underscore-to-camel-case: true
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+#  global-config:
+#    db-config:
+#      id-type: auto
+#  # 配置Mapper接口对应的映射文件路径
+#  mapper-locations: classpath:/mappers/*.xml
+#  type-aliases-package: com.wids.entities
+
+mybatis:
+  mapper-locations: classpath:/mapping/*Mapper.xml
+  type-aliases-package: com.chinasoft.demo.pojo #给所有的pojo取别名

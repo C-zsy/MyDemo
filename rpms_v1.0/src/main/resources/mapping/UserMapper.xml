@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chinasoft.demo.mapper.UserMapper">
+    <select id="login" parameterType="hashMap" resultType="hashMap">
+        select a.user_id as userId, a.user_name as userName, a.user_password as userPassword, a.owner_id as ownerId,
+            b.role_id as roleId, b.role_name as roleName, b.role_resource as roleResource
+        from rpms_user as a, rpms_role as b
+        where a.role_id = b.role_id and a.user_name = #{userName}
+    </select>
+
+    <insert id="register" parameterType="hashMap">
+        insert into rpms_user set user_name = #{userName}, user_password = #{userPassword}, owner_id = 1001, role_id = 12
+    </insert>
+
+
+</mapper>

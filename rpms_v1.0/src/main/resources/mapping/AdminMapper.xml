@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chinasoft.demo.mapper.AdminMapper">
+    <select id="roleList" parameterType="hashMap" resultType="hashMap">
+        select role_id as roleId, role_name as roleName, role_resource as roleResource
+        from rpms_role
+    </select>
+
+    <select id="powerList" parameterType="hashMap" resultType="hashMap">
+        select resource_id as resourceId, resource_name as resourceName
+        from rpms_resource
+    </select>
+
+    <select id="rolePowerList" parameterType="hashMap" resultType="hashMap">
+        select role_id as roleId, role_name as roleName, role_resource as roleResource
+        from rpms_role
+    </select>
+
+    <insert id="userAdd" parameterType="hashMap">
+        insert into rpms_user set user_name = #{userName}, user_Password = #{userPassword}
+    </insert>
+
+    <select id="userList" parameterType="hashMap" resultType="hashMap">
+        select user_id as userId, user_name as userName, role_name as roleName, a.role_id as roleId
+        from rpms_user as a, rpms_role as b
+        where a.role_id = b.role_id
+    </select>
+
+    <update id="userUpdate" parameterType="hashMap">
+        update rpms_user as a, rpms_role as b
+        set user_name = #{userName}, user_password = #{userPassword}, b.role_name = #{roleName}
+        where a.role_id = b.role_id and user_id = #{userId}
+    </update>
+
+    <delete id="userDelete" parameterType="java.util.List">
+        delete from rpms_user where user_id in
+        <foreach collection="list" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <select id="backup" parameterType="hashMap" resultType="hashMap">
+
+    </select>
+
+    <delete id="deleteRolePowerByIds" parameterType="java.util.List">
+        delete from rpms_role where role_id in
+        <foreach collection="list" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <update id="PowerUpdate" parameterType="hashMap">
+        update rpms_role set role_resource = ''
+        where role_id = #{roleId}
+    </update>
+
+    <update id="roleUpdate" parameterType="hashMap">
+        update rpms_role set role_name = #{roleName}
+        where role_id = #{roleId}
+    </update>
+
+    <insert id="rolePowerAdd" parameterType="hashMap">
+        insert into rpms_role set role_name = #{roleName}, role_resource = #{roleResource}
+    </insert>
+
+    <update id="rolePowerUpdate" parameterType="hashMap">
+        update rpms_role set role_name = #{roleName}, role_resource = #{roleResource}
+        where role_id = #{roleId}
+    </update>
+
+    <delete id="rolePowerDelete" parameterType="java.util.List">
+        delete from rpms_role where role_id in
+        <foreach collection="list" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <insert id="roleAdd" parameterType="hashMap">
+        insert into rpms_role set role_name = #{roleName}, role_resource = ''
+    </insert>
+
+    <delete id="roleDelete" parameterType="java.util.List">
+        delete from rpms_role where role_id in
+        <foreach collection="list" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <select id="powerDetails" parameterType="hashMap" resultType="hashMap">
+        select details_value as detailsValue, resource_name as resourceName
+        from rpms_resource as a, rpms_details as b
+        where a.resource_id = b.resource_id
+    </select>
+
+    <select id="powerUpdate" parameterType="hashMap" resultType="hashMap">
+        select details_value as detailsValue, resource_name as resourceName
+        from rpms_resource as a, rpms_details as b
+        where a.resource_id = #{resourceId} and b.details_value in
+        (
+	        select details_value
+	        from rpms_details
+	        where resource_id = #{resourceId}
+        )
+    </select>
+</mapper>

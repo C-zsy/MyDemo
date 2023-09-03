@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chinasoft.demo.mapper.OwnerMapper">
+
+
+    <insert id="ownerAdd" parameterType="hashMap">
+        insert into rpms_owner set owner_name = #{ownerName}, owner_sex = #{ownerSex}, owner_native = #{ownerNative},
+            owner_phone = #{ownerPhone}, owner_iden = #{ownerIden}, owner_den = #{ownerDen}, room_id = #{roomId},
+            build_id = #{buildId}, role_id = #{roleId}, owner_delete = 0
+    </insert>
+
+   <!-- <select id="buildSearch" parameterType="hashMap" resultType="hashMap">
+        order by buildId DESC
+        limit #{buildName}, #{buildStart}, #{buildFinish}, #{buildLeak}, #{buildArea}
+    </select>-->
+
+    <select id="ownerList" parameterType="hashmap" resultType="hashMap">
+        select * from rpms_owner
+    </select>
+    <select id="ownerSearchList" parameterType="hashmap" resultType="hashMap">
+        select * from rpms_owner as e where 1 = 1
+        <if test="oneway  == 1">and e.owner_name like '%${onetext}%'</if>
+        <if test="oneway  == 2">and e.owner_sex like '%${onetext}%'</if>
+        <if test="oneway  == 3">and e.owner_native like '%${onetext}%'</if>
+        <if test="oneway  == 4">and e.owner_phone like '%${onetext}%'</if>
+        <if test="oneway  == 5">and e.owner_iden like '%${onetext}%'</if>
+        <if test="oneway  == 6">and e.owner_den like '%${onetext}%'</if>
+        <if test="oneway  == 7">and e.owner_den like '%${onetext}%'</if>
+        <!--<if test="city  == 'usa'">and e.admin_account like '%u%'</if>-->
+    </select>
+
+    <sql id="queryFields">
+        select * from rpms_owner as e
+    </sql>
+
+    <sql id="queryCondition">
+        <trim prefix="where" prefixOverrides="and|or">
+            <if test="oneway  == 1">and e.owner_name like '%${onetext}%'</if>
+            <if test="oneway  == 2">and e.owner_sex like '%${onetext}%'</if>
+            <if test="oneway  == 3">and e.owner_native like '%${onetext}%'</if>
+            <if test="oneway  == 4">and e.owner_phone like '%${onetext}%'</if>
+            <if test="oneway  == 5">and e.owner_iden like '%${onetext}%'</if>
+            <if test="oneway  == 6">and e.owner_den like '%${onetext}%'</if>
+            <if test="oneway  == 7">and e.owner_den like '%${onetext}%'</if>
+
+        </trim>
+    </sql>
+
+    <select id="queryOwnerList" parameterType="hashMap" resultType="hashMap">
+#         select * from rpms_build as a, rpms_owner as b, rpms_room as c, rpms_owner as e
+#         where b.room_id = c.room_id and a.buildId = c.build_id
+        select * from rpms_owner as e
+        <include refid="queryCondition" />
+
+        order by e.owner_id DESC
+        <if test="start != null and pageSize != null">
+             limit #{start}, #{pageSize}
+        </if>
+      </select>
+
+      <select id="selectManageCount" parameterType="hashMap" resultType="int">
+          select count(*)
+          from rpms_owner as e
+          <include refid="queryCondition" />
+      </select>
+
+      <delete id="ownerDelete" parameterType="hashMap">
+          delete from rpms_owner where owner_id in
+          <foreach collection="list" item="item" separator="," open="(" close=")">
+              #{item}
+          </foreach>
+      </delete>
+
+
+      <update id="ownerUpdate" parameterType="hashmap">
+          update rpms_owner set owner_name = #{ownerName}, owner_sex = #{ownerSex}, owner_native = #{ownerNative},
+                                owner_phone = #{ownerPhone}, owner_iden = #{ownerIden}, owner_den = #{ownerDen}, room_id = #{roomId},
+                                build_id = #{buildId}, role_id = #{roleId}
+          where owner_id = #{ownerId}
+      </update>
+  </mapper>

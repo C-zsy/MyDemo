@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chinasoft.demo.mapper.MemberMapper">
+
+
+    <insert id="memberAdd" parameterType="hashMap">
+        insert into rpms_member set member_name = #{memberName}, member_sex = #{memberSex}, member_native = #{memberNative},
+            member_phone = #{memberPhone}, member_comp = #{memberComp}, room_id = 12, build_id = 3, member_delete = 0
+    </insert>
+
+
+    <select id="memberList" parameterType="hashmap" resultType="hashMap">
+        select * from rpms_member
+    </select>
+
+    <select id="memberSearchList" parameterType="hashmap" resultType="hashMap">
+        select * from rpms_member as e where 1 = 1
+        <if test="oneway  == 1">and e.member_name like '%${onetext}%'</if>
+        <if test="oneway  == 2">and e.member_sex like '%${onetext}%'</if>
+        <if test="oneway  == 3">and e.member_native like '%${onetext}%'</if>
+        <if test="oneway  == 4">and e.member_phone like '%${onetext}%'</if>
+        <if test="oneway  == 5">and e.member_comp like '%${onetext}%'</if>
+        <if test="oneway  == 6">and e.owner_id like '%${onetext}%'</if>
+    </select>
+
+    <sql id="queryFields">
+        select * from rpms_member as e
+    </sql>
+
+    <sql id="queryCondition">
+        <trim prefix="where" prefixOverrides="and|or">
+            <if test="oneway  == 1">and e.member_name like '%${onetext}%'</if>
+            <if test="oneway  == 2">and e.member_sex like '%${onetext}%'</if>
+            <if test="oneway  == 3">and e.member_native like '%${onetext}%'</if>
+            <if test="oneway  == 4">and e.member_phone like '%${onetext}%'</if>
+            <if test="oneway  == 5">and e.member_comp like '%${onetext}%'</if>
+            <if test="oneway  == 6">and e.owner_id like '%${onetext}%'</if>
+        </trim>
+    </sql>
+
+    <select id="querymemberList" parameterType="hashMap" resultType="hashMap">
+#         select * from rpms_member as a, rpms_room as b, rpms_owner as c, rpms_build
+        select * from rpms_member as e
+        <include refid="queryCondition" />
+        group by member_id
+        order by member_id DESC
+        <if test="start != null and pageSize != null ">
+            limit #{start}, #{pageSize}
+        </if>
+    </select>
+
+    <select id="selectManageCount" parameterType="hashMap" resultType="int">
+        select count(*)
+        from rpms_member as e
+        <include refid="queryCondition" />
+    </select>
+
+    <delete id="memberDelete" parameterType="hashMap">
+        delete from rpms_member where member_id in
+        <foreach collection="list" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+
+    <update id="memberUpdate" parameterType="hashmap">
+        update rpms_member set member_name = #{memberName}, member_sex = #{memberSex}, member_native = #{memberNative},
+                              member_phone = #{memberPhone}, member_comp = #{memberComp}
+        where member_id = #{memberId}
+    </update>
+</mapper>
